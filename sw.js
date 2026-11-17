@@ -1,8 +1,60 @@
-const V="paris-20261115-01", FILES=["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png"];
-self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));});
-self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
-self.addEventListener("fetch",e=>{
-  const u=new URL(e.request.url); if(e.request.method!=="GET") return;
-  if(u.origin===location.origin){ e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open(V).then(x=>x.put(e.request,c));return r;}).catch(()=>caches.match(e.request).then(r=>r||caches.match("./index.html")))); return; }
-  if(/tile\.openstreetmap\.org/.test(u.host)){ e.respondWith(caches.open(V+"-tiles").then(c=>c.match(e.request).then(h=>h||fetch(e.request).then(r=>{c.put(e.request,r.clone());return r;}).catch(()=>h)))); }
+/* Service Worker – Paris Guide offline shell */
+const CACHE = "paris-guide-v20261117";
+const CORE = [
+  "./",
+  "./Paris_Guide.html",
+  "./manifest.webmanifest",
+  "./icon-192.png",
+  "./icon-512.png"
+];
+
+self.addEventListener("install", (e) => {
+  e.waitUntil(
+    caches.open(CACHE).then((c) => c.addAll(CORE).catch(() => {})).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener("activate", (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("fetch", (e) => {
+  const req = e.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  // Network-first for API / weather / open data; cache-first for app shell
+  const isApi =
+    /open-meteo|opendata\.paris|wikipedia\.org|tile\.openstreetmap|frankfurter\.app|exchangerate/.test(
+      url.hostname
+    );
+  if (isApi) {
+    e.respondWith(
+      fetch(req)
+        .then((r) => {
+          const clone = r.clone();
+          caches.open(CACHE).then((c) => c.put(req, clone)).catch(() => {});
+          return r;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+  e.respondWith(
+    caches.match(req).then((cached) => {
+      const net = fetch(req)
+        .then((r) => {
+          if (r && r.ok) {
+            const clone = r.clone();
+            caches.open(CACHE).then((c) => c.put(req, clone)).catch(() => {});
+          }
+          return r;
+        })
+        .catch(() => cached);
+      return cached || net;
+    })
+  );
 });

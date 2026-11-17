@@ -1,1 +1,27 @@
-{"name":"פריז, צרפת – מידע למטייל","short_name":"פריז","lang":"he","dir":"rtl","start_url":"./index.html","scope":"./","display":"standalone","background_color":"#17235f","theme_color":"#17235f","launch_handler":{"client_mode":"focus-existing"},"icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
+{
+  "name": "פריז – מידע למטייל",
+  "short_name": "פריז",
+  "description": "מדריך תיירים מקיף לפריז: מפה, אתרים, מסלולים, תחבורה ומזג אוויר",
+  "start_url": "./Paris_Guide.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#17235f",
+  "theme_color": "#17235f",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
